@@ -975,7 +975,37 @@ function stats(){$("total").textContent=W.length;$("learned").textContent=S.seen
 function card(){let a=list("catCards");ci=(ci+a.length)%a.length;let o=a[ci];$("cardTerm").textContent=o.w[0];$("cardCat").textContent=o.w[2];$("cardAnswer").textContent=o.w[1];$("cardAnswer").hidden=!revealed;$("reveal").textContent=revealed?"Lösung aufgedeckt":"Lösung anzeigen";$("position").textContent="Karte "+(ci+1)+" von "+a.length}
 function rate(ok){let o=list("catCards")[ci];if(!S.seen.includes(o.i))S.seen.push(o.i);if(ok&&!S.known.includes(o.i))S.known.push(o.i);if(!ok)S.known=S.known.filter(i=>i!==o.i);S.attempts++;if(ok)S.correct++;save();ci++;revealed=false;card()}
 $("reveal").onclick=()=>{revealed=!revealed;card()};$("next").onclick=()=>{ci++;revealed=false;card()};$("prev").onclick=()=>{ci--;revealed=false;card()};$("known").onclick=()=>rate(true);$("missed").onclick=()=>rate(false);$("catCards").onchange=()=>{ci=0;revealed=false;card()};
-function quiz(){let a=list("catQuiz");qi=a[Math.floor(Math.random()*a.length)];done=false;$("qTerm").textContent=qi.w[0];$("qCount").textContent="Thema: "+qi.w[2];$("feedback").textContent="";$("options").innerHTML="";$("nextQ").hidden=true;let opts=[qi.w,...W.filter(w=>w[1]!==qi.w[1]).sort(()=>Math.random()-.5).slice(0,3).map(w=>w)];opts.sort(()=>Math.random()-.5).forEach(w=>{let b=document.createElement("button");b.textContent=w[1];b.onclick=()=>{if(done)return;done=true;let ok=w[0]===qi.w[0];b.classList.add(ok?"correct":"wrong");$("feedback").textContent=ok?"Richtig! ✓":"Richtige Antwort: "+qi.w[1];if(!S.seen.includes(qi.i))S.seen.push(qi.i);if(ok&&!S.known.includes(qi.i))S.known.push(qi.i);S.attempts++;if(ok)S.correct++;save();[...$("options").children].forEach(x=>{x.disabled=true;if(x.textContent===qi.w[1])x.classList.add("correct")});$("nextQ").hidden=false};$("options").appendChild(b)})}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function quiz(){
+ let a=list("catQuiz");if(!a.length)return;
+ qi=a[Math.floor(Math.random()*a.length)];done=false;
+ $("qTerm").textContent=qi.w[0];$("qCount").textContent="Thema: "+qi.w[2];
+ $("feedback").textContent="";$("options").innerHTML="";$("nextQ").hidden=true;
+ // Prefer plausible distractors from the same topic, then use other topics only if needed.
+ let same=W.filter(w=>w[2]===qi.w[2]&&w[0]!==qi.w[0]&&w[1]!==qi.w[1]);
+ let other=W.filter(w=>w[2]!==qi.w[2]&&w[0]!==qi.w[0]&&w[1]!==qi.w[1]);
+ let distractors=shuffle(same).slice(0,3);
+ if(distractors.length<3){
+  let used=new Set([qi.w[0],qi.w[1],...distractors.map(w=>w[1])]);
+  distractors=distractors.concat(shuffle(other.filter(w=>!used.has(w[0])&&!used.has(w[1]))).slice(0,3-distractors.length));
+ }
+ let opts=shuffle([qi.w,...distractors]);
+ opts.forEach(w=>{
+  let b=document.createElement("button");b.textContent=w[1];
+  b.onclick=()=>{
+   if(done)return;done=true;let ok=w[0]===qi.w[0];
+   b.classList.add(ok?"correct":"wrong");
+   $("feedback").textContent=ok?"Richtig! ✓":"Noch nicht richtig. Richtige Antwort: "+qi.w[1]+" (Thema: "+qi.w[2]+").";
+   if(!S.seen.includes(qi.i))S.seen.push(qi.i);
+   if(ok&&!S.known.includes(qi.i))S.known.push(qi.i);
+   if(!ok)S.known=S.known.filter(i=>i!==qi.i);
+   S.attempts++;if(ok)S.correct++;save();
+   [...$("options").children].forEach(x=>{x.disabled=true;if(x.textContent===qi.w[1])x.classList.add("correct")});
+   $("nextQ").hidden=false;
+  };
+  $("options").appendChild(b);
+ });
+}
 $("catQuiz").onchange=quiz;$("nextQ").onclick=quiz;
 function words(){let q=$("search").value.toLocaleLowerCase("de"),a=list("catWords").filter(o=>(o.w.join(" ").toLocaleLowerCase("de")).includes(q));$("wordList").innerHTML=a.map(o=>'<div class="word"><span><b>'+o.w[0]+'</b><div class="small">'+o.w[2]+'</div></span><span>'+o.w[1]+(S.known.includes(o.i)?" ✓":"")+'</span></div>').join("")||'<p class="muted">Keine passenden Begriffe.</p>'}
 $("catWords").onchange=words;$("search").oninput=words;
