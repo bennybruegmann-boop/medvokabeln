@@ -1,0 +1,11 @@
+{
+  "name": "MedVokabeln – Medizinische Fachbegriffe lernen",
+  "short_name": "MedVokabeln",
+  "description": "Medizinische Fachbegriffe und lateinische Anatomie lernen.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f7f7",
+  "theme_color": "#0f766e",
+  "icons": []
+}
