@@ -1,11 +1,11 @@
 {
-  "name": "MedVokabeln – Medizinische Fachbegriffe lernen",
-  "short_name": "MedVokabeln",
-  "description": "Medizinische Fachbegriffe und lateinische Anatomie lernen.",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#f2f7f7",
-  "theme_color": "#0f766e",
-  "icons": []
+  "name":"MedVokabeln – Medizinische Fachbegriffe lernen",
+  "short_name":"MedVokabeln",
+  "description":"Lateinische medizinische Begriffe für Anatomie, OP und Pflege lernen.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f4f8f7",
+  "theme_color":"#087f70",
+  "icons":[]
 }
